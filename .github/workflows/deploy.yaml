@@ -1,4 +1,4 @@
-name: Basic CI/CD Pipeline
+name: Basic CI/CD Pipeline with Tests and Docker
 
 on:
   push:
@@ -14,16 +14,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'  # LTS version
+
+    - name: Install dependencies
+      run: npm install
+
     - name: Lint HTML (basic check)
-      run: echo "Linting... All good!"  # Placeholder; in real apps, use a linter
+      run: echo "Linting... All good!"
+
+    - name: Run tests
+      run: npm test
 
     - name: Build
-      run: echo "Building... Done!"  # For static site, no real build needed
+      run: echo "Building... Done!"
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build  # Only deploy if build succeeds
-    if: github.ref == 'refs/heads/main'  # Only on main branch pushes
+    needs: build  # Only deploy if build (including tests) succeeds
+    if: github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout code
@@ -33,3 +44,5 @@ jobs:
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         folder: .  # Deploy from root
+
+
